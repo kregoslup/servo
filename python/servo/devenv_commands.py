@@ -29,7 +29,11 @@ from servo.util import STATIC_RUST_LANG_ORG_DIST, URLOPEN_KWARGS
 @CommandProvider
 class MachCommands(CommandBase):
     def run_cargo(self, params, geckolib=False, check=False):
+        if not params:
+            params = []
+
         if geckolib:
+            params += ['-p', 'geckoservo']
             self.set_use_stable_rust()
             crate_dir = path.join('ports', 'geckolib')
         else:
@@ -38,9 +42,6 @@ class MachCommands(CommandBase):
         self.ensure_bootstrapped()
         self.ensure_clobbered()
         env = self.build_env(geckolib=geckolib)
-
-        if not params:
-            params = []
 
         if check:
             params = ['check'] + params
@@ -94,7 +95,7 @@ class MachCommands(CommandBase):
         'params', default=None, nargs='...',
         help="Command-line arguments to be passed through to cargo check")
     def check_geckolib(self, params):
-        return self.run_cargo(["-p", "geckoservo"] + (params or []), check=True, geckolib=True)
+        return self.run_cargo(params, check=True, geckolib=True)
 
     @Command('cargo-update',
              description='Same as update-cargo',
